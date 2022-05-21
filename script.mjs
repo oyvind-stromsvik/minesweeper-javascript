@@ -62,7 +62,7 @@ function checkGameEnd() {
     messageText.textContent = "You Win";
     board.forEach(row => {
       row.forEach(tile => {
-        if (tile.type === TILE_TYPE.MINE) {
+        if (tile.type === TILE_TYPE.MINE && !tile.flagged) {
           flagTile(tile);
         }
       });
