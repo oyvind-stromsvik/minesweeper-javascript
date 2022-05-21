@@ -1,17 +1,19 @@
 import {
-  TILE_STATUSES,
+  TILE_TYPE,
+} from "./tile.mjs";
+
+import {
+  BOARD_SIZE,
+  NUMBER_OF_MINES,
   createBoard,
-  markTile,
+  flagTile,
   revealTile,
   revealAdjacent,
   checkWin,
   checkLose
 } from "./minesweeper.mjs";
 
-const BOARD_SIZE = 20;
-const NUMBER_OF_MINES = 40;
-
-const board = createBoard(BOARD_SIZE, NUMBER_OF_MINES);
+const board = createBoard();
 const boardElement = document.querySelector(".board");
 const minesLeftText = document.querySelector("[data-mine-count]");
 const messageText = document.querySelector(".subtext");
@@ -25,7 +27,7 @@ board.forEach(row => {
     });
     tile.element.addEventListener("contextmenu", function(e) {
       e.preventDefault();
-      markTile(tile);
+      flagTile(tile);
       listMinesLeft();
     });
     tile.element.addEventListener('auxclick', function(e) {
@@ -44,10 +46,10 @@ minesLeftText.textContent = NUMBER_OF_MINES;
  *
  */
 function checkGameEnd() {
-  const win = checkWin(board);
-  const lose = checkLose(board);
+  const won = checkWin(board);
+  const lost = checkLose(board);
 
-  if (win || lose) {
+  if (won || lost) {
     // Disable tile clicking if we've won or lost.
     // By doing this in the capture phase for the board, we ensure the event
     // never reaches the tiles because it's captured before that.
@@ -55,17 +57,28 @@ function checkGameEnd() {
     boardElement.addEventListener("contextmenu", disableEventHandlers, { capture: true });
   }
 
-  if (win) {
+  if (won) {
     messageText.textContent = "You Win";
+    board.forEach(row => {
+      row.forEach(tile => {
+        if (tile.type === TILE_TYPE.MINE) {
+          flagTile(tile);
+        }
+      });
+    });
+    return;
   }
-  if (lose) {
+
+  if (lost) {
     messageText.textContent = "You Lose";
     board.forEach(row => {
       row.forEach(tile => {
-        if (tile.status === TILE_STATUSES.MARKED) {
-          markTile(tile);
+        // First unset any flags we have.
+        if (tile.flagged) {
+          flagTile(tile);
         }
-        if (tile.mine) {
+        // Then reveal all the bombs.
+        if (tile.type === TILE_TYPE.MINE) {
           revealTile(board, tile);
         }
       });
@@ -76,7 +89,7 @@ function checkGameEnd() {
 function listMinesLeft() {
   const markedTilesCount = board.reduce((count, row) => {
     return (
-      count + row.filter(tile => tile.status === TILE_STATUSES.MARKED).length
+      count + row.filter(tile => tile.flagged).length
     );
   }, 0);
 

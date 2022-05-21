@@ -1,37 +1,25 @@
-export const TILE_STATUSES = {
-  HIDDEN: "hidden",
-  MINE: "mine",
-  NUMBER: "number",
-  MARKED: "marked",
-  EMPTY: 'empty',
-};
+import {
+  TILE_TYPE,
+  Tile,
+} from "./tile.mjs";
 
-export function createBoard(boardSize, numberOfMines) {
+export const BOARD_SIZE = 4;
+export const NUMBER_OF_MINES = 1;
+
+export function createBoard() {
   const board = [];
-  const minePositions = getMinePositions(boardSize, numberOfMines);
+  const minePositions = getMinePositions();
 
-  for (let x = 0; x < boardSize; x++) {
+  for (let x = 0; x < BOARD_SIZE; x++) {
     const row = [];
-    for (let y = 0; y < boardSize; y++) {
-      const element = document.createElement("div");
-      element.dataset.status = TILE_STATUSES.HIDDEN;
-
-      const number = 0;
-
-      // TODO: Tile kan vel være i egen fil?
-      const tile = {
-        element,
-        x,
-        y,
-        mine: minePositions.some(positionMatch.bind(null, { x, y })),
-        get status() {
-          return this.element.dataset.status;
-        },
-        set status(value) {
-          this.element.dataset.status = value;
-        },
-        number,
-      };
+    for (let y = 0; y < BOARD_SIZE; y++) {
+      const tile = Object.create(Tile);
+      tile.element = document.createElement("div");
+      tile.x = x;
+      tile.y = y;
+      if (minePositions.some(positionMatch.bind(null, { x, y }))) {
+        tile.type = TILE_TYPE.MINE;
+      }
 
       row.push(tile);
     }
@@ -40,48 +28,50 @@ export function createBoard(boardSize, numberOfMines) {
 
   board.forEach(row => {
     row.forEach(tile => {
-      const adjacentTiles = nearbyTiles(board, tile);
-      const mines = adjacentTiles.filter(t => t.mine);
-      tile.number = mines.length;
+      const adjacentTiles = getAdjacentTiles(board, tile);
+      const mines = adjacentTiles.filter(t => t.type === TILE_TYPE.MINE);
+      if (mines.length > 0) {
+        tile.type = TILE_TYPE.NUMBER;
+        tile.number = mines.length;
+      }
+
+      updateTileVisual(tile);
     });
   });
 
   return board;
 }
 
-export function markTile(tile) {
-  if (tile.status !== TILE_STATUSES.HIDDEN && tile.status !== TILE_STATUSES.MARKED) {
+export function flagTile(tile) {
+  if (tile.revealed) {
     return;
   }
 
-  if (tile.status === TILE_STATUSES.MARKED) {
-    tile.status = TILE_STATUSES.HIDDEN;
-  }
-  else {
-    tile.status = TILE_STATUSES.MARKED;
-  }
+  tile.flagged = !tile.flagged;
+  updateTileVisual(tile);
 }
 
 export function revealTile(board, tile) {
-  if (tile.status !== TILE_STATUSES.HIDDEN) {
+  if (tile.revealed) {
     return;
   }
 
-  if (tile.mine) {
-    tile.status = TILE_STATUSES.MINE;
-    return;
-  }
+  tile.revealed = true;
+  updateTileVisual(tile);
 
-  if (tile.number === 0) {
-    tile.status = TILE_STATUSES.EMPTY;
-    const adjacentTiles = nearbyTiles(board, tile);
-    adjacentTiles.forEach(
-      revealTile.bind(null, board)
-    );
-  }
-  else {
-    tile.status = TILE_STATUSES.NUMBER;
-    tile.element.dataset.number = tile.number;
+  switch (tile.type) {
+    case TILE_TYPE.MINE:
+      break;
+
+    case TILE_TYPE.EMPTY:
+      const adjacentTiles = getAdjacentTiles(board, tile);
+      adjacentTiles.forEach(adjacentTile => {
+        revealTile(board, adjacentTile);
+      });
+      break;
+
+    case TILE_TYPE.NUMBER:
+      break;
   }
 }
 
@@ -95,20 +85,20 @@ export function revealTile(board, tile) {
  * @param {Object} tile - The tile we clicked.
  */
 export function revealAdjacent(board, tile) {
-  if (tile.status !== TILE_STATUSES.NUMBER) {
+  if (tile.status !== TILE_TYPE.NUMBER) {
     return;
   }
 
-  const adjacentTiles = nearbyTiles(board, tile);
+  const adjacentTiles = getAdjacentTiles(board, tile);
   let adjacentFlags = 0;
   adjacentTiles.forEach(adjacentTile => {
-    if (adjacentTile.status === TILE_STATUSES.MARKED) {
+    if (adjacentTile.flagged) {
       adjacentFlags++;
     }
   });
   if (adjacentFlags === tile.number) {
     adjacentTiles.forEach(adjacentTile => {
-      if (adjacentTile.status === TILE_STATUSES.HIDDEN && adjacentTile.status !== TILE_STATUSES.MARKED) {
+      if (!adjacentTile.revealed && !adjacentTile.flagged) {
         revealTile(board, adjacentTile);
       }
     });
@@ -119,10 +109,7 @@ export function checkWin(board) {
   return board.every(row => {
     return row.every(tile => {
       return (
-        tile.status === TILE_STATUSES.NUMBER || tile.status === TILE_STATUSES.EMPTY ||
-        (tile.mine &&
-          (tile.status === TILE_STATUSES.HIDDEN ||
-            tile.status === TILE_STATUSES.MARKED))
+        tile.revealed || tile.type === TILE_TYPE.MINE
       );
     });
   });
@@ -131,24 +118,45 @@ export function checkWin(board) {
 export function checkLose(board) {
   return board.some(row => {
     return row.some(tile => {
-      return tile.status === TILE_STATUSES.MINE;
+      return tile.revealed && tile.type === TILE_TYPE.MINE;
     });
   });
 }
 
 /**
+ * Update what we see in the browser according to the tile data.
  *
- * @param boardSize
- * @param numberOfMines
+ * @param {Object} tile
+ */
+function updateTileVisual(tile) {
+  if (tile.flagged) {
+    tile.element.dataset.status = 'flagged';
+    return;
+  }
+
+  if (!tile.revealed) {
+    tile.element.dataset.status = 'hidden';
+    return;
+  }
+
+  tile.element.dataset.status = tile.type;
+
+  if (tile.type === TILE_TYPE.NUMBER) {
+    tile.element.dataset.number = tile.number;
+  }
+}
+
+/**
+ *
  * @returns {*[]}
  */
-function getMinePositions(boardSize, numberOfMines) {
+function getMinePositions() {
   const positions = [];
 
-  while (positions.length < numberOfMines) {
+  while (positions.length < NUMBER_OF_MINES) {
     const position = {
-      x: randomNumber(boardSize),
-      y: randomNumber(boardSize),
+      x: randomNumber(BOARD_SIZE),
+      y: randomNumber(BOARD_SIZE),
     };
     // TODO: Erstatt bind med noe jeg forstår.
     if (!positions.some(positionMatch.bind(null, position))) {
@@ -167,18 +175,31 @@ function positionMatch(a, b) {
   return a.x === b.x && a.y === b.y;
 }
 
-function nearbyTiles(board, { x, y }) {
-  const tiles = [];
+function getAdjacentTiles(board, tile) {
+  const adjacentTiles = [];
 
   for (let xOffset = -1; xOffset <= 1; xOffset++) {
     for (let yOffset = -1; yOffset <= 1; yOffset++) {
-      // TODO: Erstatt ? med noe jeg forstår.
-      const tile = board[x + xOffset]?.[y + yOffset];
-      if (tile) {
-        tiles.push(tile);
+      if (xOffset === 0 && yOffset === 0) {
+        continue;
       }
+
+      const adjacentTile = getTile(board, tile.x + xOffset, tile.y + yOffset);
+      if (adjacentTile === null) {
+        continue;
+      }
+
+      adjacentTiles.push(adjacentTile);
     }
   }
 
-  return tiles;
+  return adjacentTiles;
+}
+
+function getTile(board, x, y) {
+  if (x >= 0 && x < BOARD_SIZE && y >= 0 && y < BOARD_SIZE) {
+    return board[x][y];
+  }
+
+  return null;
 }

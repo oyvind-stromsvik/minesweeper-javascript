@@ -83,6 +83,6 @@ body {
   background-image: url("./Sprites/Tile8.png");
 }
 
-.board > [data-status="marked"] {
+.board > [data-status="flagged"] {
   background-image: url("./Sprites/TileFlag.png");
 }
