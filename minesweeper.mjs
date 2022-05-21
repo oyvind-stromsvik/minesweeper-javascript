@@ -3,8 +3,8 @@ import {
   Tile,
 } from "./tile.mjs";
 
-export const BOARD_SIZE = 4;
-export const NUMBER_OF_MINES = 1;
+export const BOARD_SIZE = 9;
+export const NUMBER_OF_MINES = 10;
 
 export function createBoard() {
   const board = [];
