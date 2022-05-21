@@ -1,0 +1,88 @@
+:root {
+  --board-size: 10; /* The number of rows and columns of our board, overridden by our Javascript. */
+  --tile-size: 16px; /* The height and width of a tile. Set it according to your sprite size. */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: #333;
+  display: flex;
+  align-items: center;
+  font-size: 3rem;
+  flex-direction: column;
+  color: white;
+}
+
+.title {
+  margin: 20px;
+}
+
+.subtext {
+  color: #CCC;
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.board {
+  display: grid;
+  padding: 10px;
+  grid-template-columns: repeat(var(--board-size), var(--tile-size));
+  grid-template-rows: repeat(var(--board-size), var(--tile-size));
+  background-color: #777;
+}
+
+.board > * {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  user-select: none;
+  image-rendering: pixelated;
+}
+
+.board > [data-status="empty"] {
+  background-image: url("./Sprites/TileEmpty.png");
+}
+
+.board > [data-status="hidden"] {
+  background-image: url("./Sprites/TileUnknown.png");
+}
+
+.board > [data-status="mine"] {
+  background-image: url("./Sprites/TileMine.png");
+}
+
+.board > [data-number="1"] {
+  background-image: url("./Sprites/Tile1.png");
+}
+.board > [data-number="2"] {
+  background-image: url("./Sprites/Tile2.png");
+}
+.board > [data-number="3"] {
+  background-image: url("./Sprites/Tile3.png");
+}
+.board > [data-number="4"] {
+  background-image: url("./Sprites/Tile4.png");
+}
+.board > [data-number="5"] {
+  background-image: url("./Sprites/Tile5.png");
+}
+.board > [data-number="6"] {
+  background-image: url("./Sprites/Tile6.png");
+}
+.board > [data-number="7"] {
+  background-image: url("./Sprites/Tile7.png");
+}
+.board > [data-number="8"] {
+  background-image: url("./Sprites/Tile8.png");
+}
+
+.board > [data-status="marked"] {
+  background-image: url("./Sprites/TileFlag.png");
+}
