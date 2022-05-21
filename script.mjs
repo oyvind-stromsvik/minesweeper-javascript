@@ -55,6 +55,7 @@ function checkGameEnd() {
     // never reaches the tiles because it's captured before that.
     boardElement.addEventListener("click", disableEventHandlers, { capture: true });
     boardElement.addEventListener("contextmenu", disableEventHandlers, { capture: true });
+    boardElement.addEventListener("auxclick", disableEventHandlers, { capture: true });
   }
 
   if (won) {
