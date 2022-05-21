@@ -8,7 +8,6 @@ export const NUMBER_OF_MINES = 1;
 
 export function createBoard() {
   const board = [];
-  const minePositions = getMinePositions();
 
   for (let x = 0; x < BOARD_SIZE; x++) {
     const row = [];
@@ -17,24 +16,17 @@ export function createBoard() {
       tile.element = document.createElement("div");
       tile.x = x;
       tile.y = y;
-      if (minePositions.some(positionMatch.bind(null, { x, y }))) {
-        tile.type = TILE_TYPE.MINE;
-      }
-
       row.push(tile);
     }
     board.push(row);
   }
 
+  generateMines(board);
+  generateNumbers(board);
+
+  // Draw the initial board graphic.
   board.forEach(row => {
     row.forEach(tile => {
-      const adjacentTiles = getAdjacentTiles(board, tile);
-      const mines = adjacentTiles.filter(t => t.type === TILE_TYPE.MINE);
-      if (mines.length > 0) {
-        tile.type = TILE_TYPE.NUMBER;
-        tile.number = mines.length;
-      }
-
       updateTileVisual(tile);
     });
   });
@@ -85,7 +77,7 @@ export function revealTile(board, tile) {
  * @param {Object} tile - The tile we clicked.
  */
 export function revealAdjacent(board, tile) {
-  if (tile.status !== TILE_TYPE.NUMBER) {
+  if (tile.type !== TILE_TYPE.NUMBER) {
     return;
   }
 
@@ -129,6 +121,8 @@ export function checkLose(board) {
  * @param {Object} tile
  */
 function updateTileVisual(tile) {
+  tile.element.dataset.position = tile.x + "," + tile.y;
+
   if (tile.flagged) {
     tile.element.dataset.status = 'flagged';
     return;
@@ -146,33 +140,46 @@ function updateTileVisual(tile) {
   }
 }
 
-/**
- *
- * @returns {*[]}
- */
-function getMinePositions() {
-  const positions = [];
+function generateMines(board) {
+  for (let i = 0; i < NUMBER_OF_MINES; i++) {
+    let x = Math.floor(Math.random() * BOARD_SIZE);
+    let y = Math.floor(Math.random() * BOARD_SIZE);
 
-  while (positions.length < NUMBER_OF_MINES) {
-    const position = {
-      x: randomNumber(BOARD_SIZE),
-      y: randomNumber(BOARD_SIZE),
-    };
-    // TODO: Erstatt bind med noe jeg forstår.
-    if (!positions.some(positionMatch.bind(null, position))) {
-      positions.push(position);
+    while (board[x][y].type === TILE_TYPE.MINE) {
+      x++;
+
+      if (x >= BOARD_SIZE) {
+        x = 0;
+        y++;
+
+        if (y >= BOARD_SIZE) {
+          y = 0;
+        }
+      }
     }
+
+    board[x][y].type = TILE_TYPE.MINE;
   }
-
-  return positions;
 }
 
-function randomNumber(size) {
-  return Math.floor(Math.random() * size);
-}
-
-function positionMatch(a, b) {
-  return a.x === b.x && a.y === b.y;
+function generateNumbers(board) {
+  board.forEach(row => {
+    row.forEach(tile => {
+      if (tile.type === TILE_TYPE.MINE) {
+        // Apparently return in a forEach is the same as continue in a normal
+        // for loop. I just need to comment that so that I remember it...
+        return;
+      }
+      const adjacentTiles = getAdjacentTiles(board, tile);
+      const mines = adjacentTiles.filter(function(adjacentTile) {
+        return adjacentTile.type === TILE_TYPE.MINE;
+      });
+      if (mines.length > 0) {
+        tile.type = TILE_TYPE.NUMBER;
+        tile.number = mines.length;
+      }
+    });
+  });
 }
 
 function getAdjacentTiles(board, tile) {
