@@ -1,26 +1,20 @@
 import {
   TILE_TYPE,
+  TILE_VISUAL_STATUS,
   Tile,
 } from "./tile.mjs";
 
 export const BOARD_SIZE = 9;
 export const NUMBER_OF_MINES = 10;
 
+/**
+ *
+ * @returns {*[]}
+ */
 export function createBoard() {
   const board = [];
 
-  for (let x = 0; x < BOARD_SIZE; x++) {
-    const row = [];
-    for (let y = 0; y < BOARD_SIZE; y++) {
-      const tile = Object.create(Tile);
-      tile.element = document.createElement("div");
-      tile.x = x;
-      tile.y = y;
-      row.push(tile);
-    }
-    board.push(row);
-  }
-
+  generateTiles(board);
   generateMines(board);
   generateNumbers(board);
 
@@ -34,6 +28,10 @@ export function createBoard() {
   return board;
 }
 
+/**
+ *
+ * @param tile
+ */
 export function flagTile(tile) {
   if (tile.revealed) {
     return;
@@ -43,13 +41,17 @@ export function flagTile(tile) {
   updateTileVisual(tile);
 }
 
+/**
+ *
+ * @param board
+ * @param tile
+ */
 export function revealTile(board, tile) {
   if (tile.revealed) {
     return;
   }
 
   tile.revealed = true;
-  updateTileVisual(tile);
 
   switch (tile.type) {
     case TILE_TYPE.MINE:
@@ -65,6 +67,8 @@ export function revealTile(board, tile) {
     case TILE_TYPE.NUMBER:
       break;
   }
+
+  updateTileVisual(tile);
 }
 
 /**
@@ -97,39 +101,24 @@ export function revealAdjacent(board, tile) {
   }
 }
 
-export function checkWin(board) {
-  return board.every(row => {
-    return row.every(tile => {
-      return (
-        tile.revealed || tile.type === TILE_TYPE.MINE
-      );
-    });
-  });
-}
-
-export function checkLose(board) {
-  return board.some(row => {
-    return row.some(tile => {
-      return tile.revealed && tile.type === TILE_TYPE.MINE;
-    });
-  });
-}
-
 /**
  * Update what we see in the browser according to the tile data.
  *
  * @param {Object} tile
  */
 function updateTileVisual(tile) {
-  tile.element.dataset.position = tile.x + "," + tile.y;
-
   if (tile.flagged) {
-    tile.element.dataset.status = 'flagged';
+    tile.element.dataset.status = TILE_VISUAL_STATUS.FLAGGED;
     return;
   }
 
   if (!tile.revealed) {
-    tile.element.dataset.status = 'hidden';
+    tile.element.dataset.status = TILE_VISUAL_STATUS.HIDDEN;
+    return;
+  }
+
+  if (tile.exploded) {
+    tile.element.dataset.status = TILE_VISUAL_STATUS.EXPLODED;
     return;
   }
 
@@ -140,6 +129,28 @@ function updateTileVisual(tile) {
   }
 }
 
+/**
+ *
+ * @param board
+ */
+function generateTiles(board) {
+  for (let x = 0; x < BOARD_SIZE; x++) {
+    const row = [];
+    for (let y = 0; y < BOARD_SIZE; y++) {
+      const tile = Object.create(Tile);
+      tile.element = document.createElement("div");
+      tile.x = x;
+      tile.y = y;
+      row.push(tile);
+    }
+    board.push(row);
+  }
+}
+
+/**
+ *
+ * @param board
+ */
 function generateMines(board) {
   for (let i = 0; i < NUMBER_OF_MINES; i++) {
     let x = Math.floor(Math.random() * BOARD_SIZE);
@@ -162,6 +173,10 @@ function generateMines(board) {
   }
 }
 
+/**
+ *
+ * @param board
+ */
 function generateNumbers(board) {
   board.forEach(row => {
     row.forEach(tile => {
@@ -182,6 +197,12 @@ function generateNumbers(board) {
   });
 }
 
+/**
+ *
+ * @param board
+ * @param tile
+ * @returns {*[]}
+ */
 function getAdjacentTiles(board, tile) {
   const adjacentTiles = [];
 
@@ -203,6 +224,13 @@ function getAdjacentTiles(board, tile) {
   return adjacentTiles;
 }
 
+/**
+ *
+ * @param board
+ * @param x
+ * @param y
+ * @returns {null|*}
+ */
 function getTile(board, x, y) {
   if (x >= 0 && x < BOARD_SIZE && y >= 0 && y < BOARD_SIZE) {
     return board[x][y];

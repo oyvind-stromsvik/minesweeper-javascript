@@ -57,6 +57,9 @@ body {
 .board > [data-status="mine"] {
   background-image: url("./Sprites/TileMine.png");
 }
+.board > [data-status="exploded"] {
+  background-image: url("./Sprites/TileExploded.png");
+}
 
 .board > [data-number="1"] {
   background-image: url("./Sprites/Tile1.png");

@@ -9,8 +9,6 @@ import {
   flagTile,
   revealTile,
   revealAdjacent,
-  checkWin,
-  checkLose
 } from "./minesweeper.mjs";
 
 const board = createBoard();
@@ -23,7 +21,7 @@ board.forEach(row => {
     boardElement.append(tile.element);
     tile.element.addEventListener("click", function() {
       revealTile(board, tile);
-      checkGameEnd();
+      checkGameEnd(tile);
     });
     tile.element.addEventListener("contextmenu", function(e) {
       e.preventDefault();
@@ -33,7 +31,7 @@ board.forEach(row => {
     tile.element.addEventListener('auxclick', function(e) {
       if (e.button === 1) {
         revealAdjacent(board, tile);
-        checkGameEnd();
+        checkGameEnd(tile);
       }
     });
   });
@@ -43,9 +41,11 @@ boardElement.style.setProperty("--board-size", BOARD_SIZE);
 minesLeftText.textContent = NUMBER_OF_MINES;
 
 /**
+ * Check the game state after we reveal a tile.
  *
+ * @param {Object} tile - The last revealed tile.
  */
-function checkGameEnd() {
+function checkGameEnd(tile) {
   const won = checkWin(board);
   const lost = checkLose(board);
 
@@ -71,6 +71,14 @@ function checkGameEnd() {
   }
 
   if (lost) {
+    // Set the last revealed tile as exploded.
+    // We also have to unreveal it so that the revealTile loop we have below
+    // actually reveals it again and updates the tile graphic. A bit hacky, but
+    // good enough for now.
+    // @todo This doesn't work for when we lose through middle clicking.
+    tile.exploded = true;
+    tile.revealed = false;
+
     messageText.textContent = "You Lose";
     board.forEach(row => {
       row.forEach(tile => {
@@ -85,6 +93,34 @@ function checkGameEnd() {
       });
     });
   }
+}
+
+/**
+ *
+ * @param board
+ * @returns {*}
+ */
+function checkWin(board) {
+  return board.every(row => {
+    return row.every(tile => {
+      return (
+        tile.revealed || tile.type === TILE_TYPE.MINE
+      );
+    });
+  });
+}
+
+/**
+ *
+ * @param board
+ * @returns {*}
+ */
+function checkLose(board) {
+  return board.some(row => {
+    return row.some(tile => {
+      return tile.revealed && tile.type === TILE_TYPE.MINE;
+    });
+  });
 }
 
 function listMinesLeft() {
