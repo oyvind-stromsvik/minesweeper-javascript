@@ -1,0 +1,130 @@
+.corner,
+.split,
+.number,
+.face,
+.board > * {
+  background-image: url("./sprites/spritesheet.gif");
+  image-rendering: pixelated;
+}
+
+.number-display > [data-number="0"] {
+  background-position: 0 -68px;
+}
+.number-display > [data-number="1"] {
+  background-position: -13px -68px;
+}
+.number-display > [data-number="2"] {
+  background-position: -26px -68px;
+}
+.number-display > [data-number="3"] {
+  background-position: -39px -68px;
+}
+.number-display > [data-number="4"] {
+  background-position: -52px -68px;
+}
+.number-display > [data-number="5"] {
+  background-position: -65px -68px;
+}
+.number-display > [data-number="6"] {
+  background-position: -78px -68px;
+}
+.number-display > [data-number="7"] {
+  background-position: -91px -68px;
+}
+.number-display > [data-number="8"] {
+  background-position: -104px -68px;
+}
+.number-display > [data-number="9"] {
+  background-position: -117px -68px;
+}
+.number-display > [data-number="-"] {
+  background-position: -130px -68px;
+}
+
+.board > [data-status="empty"] {
+  background-position: 0 0;
+}
+.board > [data-status="hidden"] {
+  background-position: 0 -16px;
+}
+.board > [data-status="flagged"] {
+  background-position: -16px -16px;
+}
+.board > [data-status="mine"] {
+  background-position: -48px -16px;
+}
+.board > [data-status="exploded"] {
+  background-position: -80px -16px;
+}
+.board > [data-number="1"] {
+  background-position: -16px 0;
+}
+.board > [data-number="2"] {
+  background-position: -32px 0;
+}
+.board > [data-number="3"] {
+  background-position: -48px 0;
+}
+.board > [data-number="4"] {
+  background-position: -64px 0;
+}
+.board > [data-number="5"] {
+  background-position: -80px 0;
+}
+.board > [data-number="6"] {
+  background-position: -96px 0;
+}
+.board > [data-number="7"] {
+  background-position: -112px 0;
+}
+.board > [data-number="8"] {
+  background-position: -128px 0;
+}
+
+.face {
+  background-position: 0 -42px;
+}
+.face[data-type="clicked"] {
+  background-position: -26px -42px;
+}
+.face[data-type="dead"] {
+  background-position: -52px -42px;
+}
+.face[data-type="orgasm"] {
+  background-position: -78px -42px;
+}
+.face[data-type="sunglasses"] {
+  background-position: -104px -42px;
+}
+
+.corner--top-left {
+  background-position: 0 -32px;
+}
+.corner--top-right {
+  background-position: -10px -32px;
+}
+.corner--bottom-left {
+  background-position: -20px -32px;
+}
+.corner--bottom-right {
+  background-position: -30px -32px;
+}
+
+.split-left {
+  background-position: -40px -32px;
+}
+.split-right {
+  background-position: -50px -32px;
+}
+
+/* Use separate sprites for the edges so that we can repeat/stretch them. */
+.edge--left,
+.edge--right {
+  background-image: url("./sprites/edge-vertical.gif");
+  image-rendering: pixelated;
+}
+.edge--top,
+.edge--bottom {
+  background-image: url("./sprites/edge-horizontal.gif");
+  image-rendering: pixelated;
+}

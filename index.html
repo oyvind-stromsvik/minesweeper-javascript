@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="sprites.css">
   <link rel="stylesheet" href="styles.css">
   <script src="script.mjs" type="module"></script>
   <title>Minesweeper</title>
@@ -12,6 +13,56 @@
   <div class="subtext">
     Mines Left: <span data-mine-count></span>
   </div>
-  <div class="board"></div>
+
+  <div class="game">
+    <div class="score-area">
+      <div class="top-edge">
+        <div class="corner corner--top-left"></div>
+        <div class="edge edge--top"></div>
+        <div class="corner corner--top-right"></div>
+      </div>
+
+      <div class="main">
+        <div class="edge edge--left"></div>
+        <div class="score">
+          <div class="mine-counter number-display">
+            <div class="number" data-number="0"></div>
+            <div class="number" data-number="9"></div>
+            <div class="number" data-number="9"></div>
+          </div>
+          <div class="face" data-type="sunglasses">
+
+          </div>
+          <div class="timer number-display">
+            <div class="number" data-number="1"></div>
+            <div class="number" data-number="2"></div>
+            <div class="number" data-number="3"></div>
+          </div>
+        </div>
+        <div class="edge edge--right"></div>
+      </div>
+    </div>
+
+    <div class="game-area">
+      <div class="top-edge">
+        <div class="split split-left"></div>
+        <div class="edge edge--top"></div>
+        <div class="split split-right"></div>
+      </div>
+
+      <div class="main">
+        <div class="edge edge--left"></div>
+        <div class="board"></div>
+        <div class="edge edge--right"></div>
+      </div>
+
+      <div class="bottom-edge">
+        <div class="corner corner--bottom-left"></div>
+        <div class="edge edge--bottom"></div>
+        <div class="corner corner--bottom-right"></div>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

@@ -27,12 +27,69 @@ body {
   margin-bottom: 10px;
 }
 
+.game {
+  background-color: #c0c0c0;
+}
+
+.score {
+  height: 36px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.mine-counter {
+  margin-left: 7px;
+}
+.timer {
+  margin-right: 7px;
+}
+.number-display {
+  display: flex;
+}
+.number-display .number {
+  width: 13px;
+  height: 23px;
+}
+
+.face {
+  width: 26px;
+  height: 26px;
+}
+
+.top-edge {
+  display: flex;
+}
+.main {
+  display: flex;
+}
+.bottom-edge {
+  display: flex;
+}
+
+.corner,
+.split {
+  width: 10px;
+  height: 10px;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+.edge--top,
+.edge--bottom {
+  width: 100%;
+  height: 10px;
+}
+.edge--left,
+.edge--right {
+  width: 10px;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
 .board {
   display: grid;
-  padding: 10px;
   grid-template-columns: repeat(var(--board-size), var(--tile-size));
   grid-template-rows: repeat(var(--board-size), var(--tile-size));
-  background-color: #777;
 }
 
 .board > * {
@@ -43,49 +100,4 @@ body {
   align-items: center;
   color: white;
   user-select: none;
-  image-rendering: pixelated;
-}
-
-.board > [data-status="empty"] {
-  background-image: url("./Sprites/TileEmpty.png");
-}
-
-.board > [data-status="hidden"] {
-  background-image: url("./Sprites/TileUnknown.png");
-}
-
-.board > [data-status="mine"] {
-  background-image: url("./Sprites/TileMine.png");
-}
-.board > [data-status="exploded"] {
-  background-image: url("./Sprites/TileExploded.png");
-}
-
-.board > [data-number="1"] {
-  background-image: url("./Sprites/Tile1.png");
-}
-.board > [data-number="2"] {
-  background-image: url("./Sprites/Tile2.png");
-}
-.board > [data-number="3"] {
-  background-image: url("./Sprites/Tile3.png");
-}
-.board > [data-number="4"] {
-  background-image: url("./Sprites/Tile4.png");
-}
-.board > [data-number="5"] {
-  background-image: url("./Sprites/Tile5.png");
-}
-.board > [data-number="6"] {
-  background-image: url("./Sprites/Tile6.png");
-}
-.board > [data-number="7"] {
-  background-image: url("./Sprites/Tile7.png");
-}
-.board > [data-number="8"] {
-  background-image: url("./Sprites/Tile8.png");
-}
-
-.board > [data-status="flagged"] {
-  background-image: url("./Sprites/TileFlag.png");
 }
